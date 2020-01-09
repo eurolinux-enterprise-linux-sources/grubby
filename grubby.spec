@@ -1,6 +1,6 @@
 Name: grubby
 Version: 7.0.15
-Release: 3%{?dist}
+Release: 5%{?dist}
 Summary: Command line tool for updating bootloader configs
 Group: System Environment/Base
 License: GPLv2+
@@ -19,7 +19,8 @@ Requires: s390utils-base
 Patch0: 0001-Add-check-for-return-value-of-getuuidbydev-592294.patch
 Patch1: 0001-Allow-args-changes-to-affect-all-kernel-entries-6969.patch
 Patch2: 0002-Add-test-for-updating-an-existing-arg-on-ALL-kernels.patch
-
+Patch3: 0001-Read-HYPERVISOR-and-HYPERVISOR_ARGS-from-etc-sysconf.patch
+Patch4: grubby-7.0.15-update-mbmodule-initrd-999908.patch
 
 %description
 grubby  is  a command line tool for updating and displaying information about 
@@ -33,6 +34,8 @@ environment.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1 -b .999908
 
 %build
 make %{?_smp_mflags}
@@ -59,6 +62,14 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Sep 12 2013 Peter Jones <pjones@redhat.com> - 7.0.15-5
+- When we're using a multiboot image, add the initrd as a multiboot module.
+  Resolves: rhbz#999908
+
+* Fri Aug  2 2013 David Shea <dshea@redhat.com> - 7.0.15-4
+- Read HYPERVISOR and HYPERVISOR_ARGS from /etc/sysconfig/kernel
+  Resolves: rhbz#991197
+
 * Wed Feb 29 2012 Peter Jones <pjones@redhat.com> - 7.0.15-3
 - Ensure that all stanzas are fixed with --update-kernel=ALL (patch from bcl)
   Resolves: rhbz#696960
