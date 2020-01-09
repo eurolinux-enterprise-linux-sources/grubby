@@ -1,3 +1,7 @@
+From: noone <nobody@example.com>
+Subject: fix a bug
+Date: 2013-09-12 14:52:26.715349044 -0400
+
 diff -urpN grubby-7.0.15/grubby.c.999908 grubby-7.0.15/grubby.c
 --- grubby-7.0.15/grubby.c.999908	2013-09-12 14:52:26.715349044 -0400
 +++ grubby-7.0.15/grubby.c	2013-09-12 14:52:57.748148531 -0400
