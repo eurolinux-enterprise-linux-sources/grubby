@@ -1,6 +1,6 @@
 Name: grubby
 Version: 8.28
-Release: 23%{?dist}
+Release: 25%{?dist}
 Summary: Command line tool for updating bootloader configs
 Group: System Environment/Base
 License: GPLv2+
@@ -82,6 +82,7 @@ Patch0072: 0072-Add-s390-s390x-info-test-1285601.patch
 Patch0073: 0073-Fix-info-for-s390x-s390-1285601.patch
 Patch0074: 0074-Add-s390-s390x-set-default-index-test-1285601.patch
 Patch0075: 0075-Fix-setDefaultImage-for-s390-s390x-1285601.patch
+Patch0076: 0076-grubby-Make-sure-configure-BOOTLOADER-variables-are-.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: pkgconfig glib2-devel popt-devel 
@@ -89,7 +90,7 @@ BuildRequires: libblkid-devel git
 # for make test / getopt:
 BuildRequires: util-linux-ng
 %ifarch aarch64 i686 x86_64 ppc ppc64
-BuildRequires: /usr/bin/grub2-editenv
+BuildRequires: grub2-tools-minimal
 %endif
 %ifarch s390 s390x
 Requires: s390utils-base
@@ -133,6 +134,7 @@ install -m 0755 %{SOURCE1} $RPM_BUILD_ROOT/usr/libexec/grubby/
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/
 install -p uboot $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/uboot
 touch $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/kernel
+chmod 0644 $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/kernel
 mkdir -p $RPM_BUILD_ROOT/boot
 echo " " >> $RPM_BUILD_ROOT/boot/boot.scr
 %endif
@@ -151,13 +153,23 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/sbin/grubby
 %{_mandir}/man8/*.8*
 /usr/libexec/grubby/prune_debug
-%ghost %config(noreplace) %{_sysconfdir}/sysconfig/kernel
+%ghost %attr(0644,-,-) %config(noreplace) %{_sysconfdir}/sysconfig/kernel
 %ifarch %{arm}
 %config(noreplace) %{_sysconfdir}/sysconfig/uboot
 %config(noreplace) /boot/boot.scr
 %endif
 
 %changelog
+* Tue Aug 14 2018 Peter Jones <pjones@redhat.com> - 8.28-25
+- Ensure /etc/sysconfig/kernel has a stable mode, now that rpm handles ghost
+  files differently.
+  Resolves: rhbz#1584313
+
+* Fri Jun 22 2018 Peter Jones <pjones@redhat.com> - 8.28-24
+- Ensure "grubby --default-title" takes the bootloader selection into
+  account
+  Resolves: rhbz#1340893
+
 * Tue Mar 21 2017 rmarshall@redhat.com - 8.28-23
 - Fixes --info flag on s390/s390x.
   Related: rhbz#1285601
@@ -425,16 +437,16 @@ rm -rf $RPM_BUILD_ROOT
 
 * Thu Dec 08 2011 Adam Williamson <awilliam@redhat.com> - 8.4-1
 - Update to 8.4:
-	+ fix Loading... line for updated kernels
-	+ Add new '--default-title' feature
-	+ Add new '--default-index' feature
-	+ add feature for testing the output of a grubby command
-	+ Fix detection when comparing stage1 to MBR
-	+ do not link against glib-2.0
-	+ Don't crash if grubConfig not found
-	+ Adding extlinux support for new-kernel-pkg
-	+ Look for Debian / Ubuntu grub config files (#703260)
-	+ Make grubby recognize Ubuntu's spin of Grub2 (#703260)
+  - fix Loading... line for updated kernels
+  - Add new '--default-title' feature
+  - Add new '--default-index' feature
+  - add feature for testing the output of a grubby command
+  - Fix detection when comparing stage1 to MBR
+  - do not link against glib-2.0
+  - Don't crash if grubConfig not found
+  - Adding extlinux support for new-kernel-pkg
+  - Look for Debian / Ubuntu grub config files (#703260)
+  - Make grubby recognize Ubuntu's spin of Grub2 (#703260)
 
 * Thu Sep 29 2011 Peter Jones <pjones@redhat.com> - 8.3-1
 - Fix new-kernel-pkg invocation of grubby for grub (patch from Mads Kiilerich)
@@ -522,7 +534,7 @@ rm -rf $RPM_BUILD_ROOT
   Resolves: rhbz#520515
 
 * Wed Sep 09 2009 Hans de Goede <hdegoede@redhat.com> - 7.0.4-1
-- Add --dracut cmdline argument for %post generation of dracut initrd
+- Add --dracut cmdline argument for %%post generation of dracut initrd
 
 * Wed Aug 26 2009 Hans de Goede <hdegoede@redhat.com> - 7.0.3-1
 - Silence error when no /etc/sysconfig/keyboard (#517187)
