@@ -1,11 +1,12 @@
 Name: grubby
 Version: 8.28
-Release: 18%{?dist}
+Release: 21%{?dist}
 Summary: Command line tool for updating bootloader configs
 Group: System Environment/Base
 License: GPLv2+
 URL: http://git.fedorahosted.org/git/grubby.git
 Source0: https://git.fedorahosted.org/cgit/grubby.git/snapshot/%{name}-%{version}-1.tar.bz2
+Source1: prune_debug
 Patch0001: 0001-Only-set-RPM_OPT_FLAGS-if-undefined.patch
 Patch0002: 0002-If-we-re-using-multiboot-add-a-new-mbmodule-not-an-i.patch
 Patch0003: 0003-Use-PREFIX-during-make-install.patch
@@ -66,6 +67,21 @@ Patch0057: 0057-Update-grubby-man-page-contents-bz1232168.patch
 Patch0058: 0058-Fix-inline-help-typo-1232168.patch
 Patch0059: 0059-More-edits-for-grubby.8-1232168.patch
 Patch0060: 0060-Minor-man-page-changes-1232168.patch
+Patch0061: 0061-Rename-setDefaultImage-variables.patch
+Patch0062: 0062-Add-index-constant-definitions-instead-of-open-coded.patch
+Patch0063: 0063-Track-configuration-modifications.patch
+Patch0064: 0064-Fix-some-test-cases-where-the-resulting-default-inde.patch
+Patch0065: 0065-Don-t-assume-make-default-just-because-set-index-was.patch
+Patch0066: 0066-Clarify-set-default-index-in-the-man-page.patch
+Patch0067: 0067-Add-multi-entry-removal-test-1285601.patch
+Patch0068: 0068-Fix-findTemplate-index-logic-1285601.patch
+Patch0069: 0069-Write-correct-default-to-environment-1285601.patch
+Patch0070: 0070-Initialize-variable-for-ppc-environment-1285601.patch
+Patch0071: 0071-Fix-initial-saved_entry-read-issue-1285601.patch
+Patch0072: 0072-Add-s390-s390x-info-test-1285601.patch
+Patch0073: 0073-Fix-info-for-s390x-s390-1285601.patch
+Patch0074: 0074-Add-s390-s390x-set-default-index-test-1285601.patch
+Patch0075: 0075-Fix-setDefaultImage-for-s390-s390x-1285601.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: pkgconfig glib2-devel popt-devel 
@@ -111,6 +127,8 @@ make test
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT PREFIX=%{_prefix} mandir=%{_mandir}
+install -d -m 0755 $RPM_BUILD_ROOT/usr/libexec/grubby/
+install -m 0755 %{SOURCE1} $RPM_BUILD_ROOT/usr/libexec/grubby/
 %ifarch %{arm}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/
 install -p uboot $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/uboot
@@ -122,6 +140,8 @@ echo " " >> $RPM_BUILD_ROOT/boot/boot.scr
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post
+/usr/libexec/grubby/prune_debug
 
 %files
 %defattr(-,root,root,-)
@@ -130,6 +150,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/sbin/new-kernel-pkg
 %{_prefix}/sbin/grubby
 %{_mandir}/man8/*.8*
+/usr/libexec/grubby/prune_debug
 %ghost %config(noreplace) %{_sysconfdir}/sysconfig/kernel
 %ifarch %{arm}
 %config(noreplace) %{_sysconfdir}/sysconfig/uboot
@@ -137,6 +158,23 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Tue Mar 14 2017 rmarshall@redhat.com - 8.28-21
+- Fixes --info flag on s390/s390x.
+  Related: rhbz#1420749
+- Fixes --set-default-index on s390/s390x.
+  Related: rhbz#1420749
+- Allows prune_debug to run on s390/s390x.
+  Resolves: rhbz#1420749
+
+* Mon Mar 06 2017 rmarshall@redhat.com - 8.28-20
+- Resolve coverity scan issues in the prune_debug shell script.
+  Resolves: rhbz#1420749
+
+* Mon Mar 06 2017 rmarshall@redhat.com - 8.28-19
+- Fixed an issue where grubby's logic set the wrong default
+  boot entry.
+  Resolves: #1420749
+
 * Fri Jul 01 2016 rmarshall@redhat.com - 8.28-18
 - Patched new-kernel-pkg so that kernel installations when MAKEDEBUG is
   set would put the debugging entries after the non-debugging entries.
