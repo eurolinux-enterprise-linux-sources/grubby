@@ -1,6 +1,6 @@
 Name: grubby
 Version: 8.28
-Release: 25%{?dist}
+Release: 26%{?dist}
 Summary: Command line tool for updating bootloader configs
 Group: System Environment/Base
 License: GPLv2+
@@ -83,13 +83,17 @@ Patch0073: 0073-Fix-info-for-s390x-s390-1285601.patch
 Patch0074: 0074-Add-s390-s390x-set-default-index-test-1285601.patch
 Patch0075: 0075-Fix-setDefaultImage-for-s390-s390x-1285601.patch
 Patch0076: 0076-grubby-Make-sure-configure-BOOTLOADER-variables-are-.patch
+Patch0077: 0077-Fix-incorrect-test-case-and-remove-args-with-a-value.patch
+Patch0078: 0078-Check-that-pointers-are-not-NULL-before-dereferencin.patch
+Patch0079: 0079-Improve-man-page-for-info-option.patch
+Patch0080: 0080-Print-default-image-even-if-isn-t-a-suitable-one.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: pkgconfig glib2-devel popt-devel 
 BuildRequires: libblkid-devel git
 # for make test / getopt:
 BuildRequires: util-linux-ng
-%ifarch aarch64 i686 x86_64 ppc ppc64
+%ifarch aarch64 x86_64 ppc ppc64
 BuildRequires: grub2-tools-minimal
 %endif
 %ifarch s390 s390x
@@ -99,6 +103,8 @@ Requires: s390utils-base
 Requires: uboot-tools
 %endif
 Requires: system-release
+
+ExcludeArch: %{?ix86}
 
 %description
 grubby  is  a command line tool for updating and displaying information about 
@@ -160,6 +166,16 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Mon Mar 18 2019 Javier Martinez Canillas <javierm@redhat.com> - 8.28-26
+- Exclude building on i686
+  Related: rhbz#1476273
+- Fix grubby removing wrong kernel command line parameter
+  Resolves: rhbz#1476273
+- Improve man page for --info option (jstodola)
+  Resolves: rhbz#1651673
+- Print default image even if isn't a suitable one
+  Resolves: rhbz#1323842
+
 * Tue Aug 14 2018 Peter Jones <pjones@redhat.com> - 8.28-25
 - Ensure /etc/sysconfig/kernel has a stable mode, now that rpm handles ghost
   files differently.
