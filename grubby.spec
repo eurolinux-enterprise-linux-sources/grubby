@@ -1,6 +1,6 @@
 Name: grubby
 Version: 8.28
-Release: 21%{?dist}
+Release: 23%{?dist}
 Summary: Command line tool for updating bootloader configs
 Group: System Environment/Base
 License: GPLv2+
@@ -158,22 +158,34 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
-* Tue Mar 14 2017 rmarshall@redhat.com - 8.28-21
+* Tue Mar 21 2017 rmarshall@redhat.com - 8.28-23
 - Fixes --info flag on s390/s390x.
-  Related: rhbz#1420749
+  Related: rhbz#1285601
 - Fixes --set-default-index on s390/s390x.
-  Related: rhbz#1420749
+  Related: rhbz#1285601
 - Allows prune_debug to run on s390/s390x.
-  Resolves: rhbz#1420749
+  Resolves: rhbz#1285601
 
-* Mon Mar 06 2017 rmarshall@redhat.com - 8.28-20
-- Resolve coverity scan issues in the prune_debug shell script.
-  Resolves: rhbz#1420749
+* Mon Mar 06 2017 rmarshall@redhat.com - 8.28-22
+- Resolve issues found by coverity scan.
+  Resolves: rhbz#1285601
 
-* Mon Mar 06 2017 rmarshall@redhat.com - 8.28-19
+* Mon Mar 06 2017 rmarshall@redhat.com - 8.28-21
+- Resolve issues with the recent grubby logic patches that
+  appeared on the ppc platform. Fix a problem that occurred
+  on systems where no kernel update had ever been installed.
+  Resolves: rhbz#1285601
+- Specify the actual prune_debug file in sources.
+  Resolves: rhbz#1285601
+
+* Thu Feb 09 2017 rmarshall@redhat.com - 8.28-20
+- Added invocations for prune_debug to spec file
+  Resolves: #1285601
+
+* Thu Feb 09 2017 rmarshall@redhat.com - 8.28-19
 - Fixed an issue where grubby's logic set the wrong default
   boot entry.
-  Resolves: #1420749
+  Resolves: #1285601
 
 * Fri Jul 01 2016 rmarshall@redhat.com - 8.28-18
 - Patched new-kernel-pkg so that kernel installations when MAKEDEBUG is
